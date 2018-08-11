@@ -1,86 +1,61 @@
 package home.assignment.tcg.model;
 
+import home.assignment.tcg.commands.Draw;
+import home.assignment.tcg.commands.Play;
+import home.assignment.tcg.exceptions.DeckEmptyException;
+import home.assignment.tcg.exceptions.NotEnoughManaException;
+import home.assignment.tcg.observers.HealthObserver;
+import home.assignment.tcg.observers.ManaObserver;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 public class Player {
 
+
+    private final Draw drawCommand;
+    private final Play playCommand;
+    private final HealthObserver healthObserver;
+    private final ManaObserver manaObserver;
 
     private int mana = 0;
     private int health = 30;
     private ArrayList<Integer> cardList = new ArrayList(Arrays.asList(0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8));
     private String playerName;
-    private List<Integer> hand = new ArrayList();
+    private List<Integer> hand;
 
 
-    public List<Integer> getHand() {
-        return hand;
-    }
-
-    public void setHand(List<Integer> hand) {
-        this.hand = hand;
-    }
-
-    public Player(String playerName) {
+    public Player(String playerName) throws DeckEmptyException {
         this.setPlayerName(playerName);
+        drawCommand = new Draw(this);
+        playCommand = new Play(this);
+        healthObserver = new HealthObserver(this);
+        manaObserver = new ManaObserver(this);
         initHand();
     }
 
-    private void initHand() {
-        while (hand.size() < 3) {
-            hand.add(getRandomCard());
+    public Integer play(int choosenCardIndex) throws NotEnoughManaException {
+        return this.playCommand.execute(choosenCardIndex);
+    }
+
+    public void draw() throws DeckEmptyException {
+
+        // draw card and remove from deck
+        Integer card = this.drawCommand.execute();
+        // if hand is full therefore drawn card is not added to hand.
+        if (this.getHand().size() < 5)
+            this.getHand().add(card);
+    }
+
+    private void initHand() throws DeckEmptyException {
+        this.hand = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            this.draw();
         }
+
     }
 
-    public int getMana() {
-        return mana;
-    }
-
-    public void setMana(int mana) {
-        if (mana <= 10) {
-            this.mana = mana;
-        }
-    }
-
-    public int getHealth() {
-        return health;
-    }
-
-    public void setHealth(int health) {
-        if (health < 0)
-            this.health = 0;
-        this.health = health;
-    }
-
-    public int getRandomCard() {
-        // pick random card
-        int index = new Random().nextInt(cardList.size());
-        int damage = cardList.get(index);
-        // card was already drawn before
-        if (damage == -1) {
-            getRandomCard();
-        } else {
-            // card is now drawn
-            cardList.remove(index);
-        }
-        // hit
-        return damage;
-    }
-
-    public void drawCard() {
-        if (this.getCardList().size() > 0) {
-            int randomCard = getRandomCard();
-            if (hand.size() < 5) {
-                hand.add(randomCard);
-            }
-        }
-    }
-
-    public Integer playCard(int choosenCardIndex) {
-        return hand.get(choosenCardIndex - 1);
-    }
 
     public boolean canPlayCard() {
         boolean playable = false;
@@ -93,6 +68,36 @@ public class Player {
         return playable;
     }
 
+
+    public void setCardList(ArrayList<Integer> cardList) {
+        this.cardList = cardList;
+    }
+
+    public void setHand(List<Integer> hand) {
+        this.hand = hand;
+    }
+
+    public List<Integer> getHand() {
+        return hand;
+    }
+
+    public int getMana() {
+        return mana;
+    }
+
+    public void setMana(int mana) {
+        this.mana = mana;
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public void setHealth(int health) {
+        this.health = health;
+    }
+
+
     public String getPlayerName() {
         return playerName;
     }
@@ -104,6 +109,15 @@ public class Player {
     public ArrayList<Integer> getCardList() {
         return cardList;
     }
+
+    public HealthObserver getHealthObserver() {
+        return healthObserver;
+    }
+
+    public ManaObserver getManaObserver() {
+        return manaObserver;
+    }
+
 }
 
 
