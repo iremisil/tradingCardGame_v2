@@ -32,7 +32,8 @@ public class Game {
 
         int round = 0;
 
-        while (true) {
+        while (isGameStillValid()) {
+
             if (round % 2 == 0) {
                 initRound(player1, player2);
             } else {
@@ -50,27 +51,32 @@ public class Game {
                 System.out.println("Your Mana is : " + current.getMana());
                 System.out.println("Your health is : " + current.getHealth());
 
+
                 if (!this.current.canPlayCard()) {
                     this.newTurn = true;
                     round++;
+                    System.out.println("!!! --- Hand turn to opponent because there is not enough mana for this hand --- !!!");
+                    System.out.println();
                     continue;
                 }
 
-                System.out.println("Please choose your card or skip(Please enter 9)");
-                // get choosen card index
-                int choosenCardIndex = scan.nextInt();
+                System.out.println("Please choose your card");
+                // get chosen card index
+                int chosenCardIndex = scan.nextInt();
 
-                if (choosenCardIndex > 0 && choosenCardIndex < 5) {
+                if (chosenCardIndex > 0 && chosenCardIndex <= 5) {
 
                     // get dmg done
-                    Integer damage = current.play(choosenCardIndex);
+                    Integer damage = current.play(chosenCardIndex);
                     // update both sides for mana loss and dmg done
-                    this.current.getManaObserver().update(damage);
+                    this.current.getManaObserver().decreaseMana(damage);
                     this.opponent.getHealthObserver().update(damage);
 
                     System.out.println("Current mana: " + this.current.getMana());
                     System.out.println("Opponent health: " + this.opponent.getHealth());
-                    System.out.println("##########");
+                    System.out.println("Remaining card List size " + this.current.getCardList().size());
+                    System.out.println("----------");
+                    System.out.println();
 
                     if (this.current.canPlayCard()) {
                         this.newTurn = false;
@@ -93,13 +99,31 @@ public class Game {
             }
 
         }
+
     }
 
-    private void initRound(Player current, Player opponent) {
+
+    public void initRound(Player current, Player opponent) {
         this.current = current;
         this.opponent = opponent;
         if (this.newTurn)
             this.current.getManaObserver().update(1);
+    }
+
+    private boolean isGameStillValid() {
+        if (player1.getCardList().size() <= 0 || player2.getCardList().size() <= 0) {
+            Player setWinner = setWinner(current, opponent);
+            System.out.println("Winner is " + setWinner.getPlayerName());
+            return false;
+        } else
+            return true;
+    }
+
+    private Player setWinner(Player current, Player opponent) {
+        if (current.getHealth() > opponent.getHealth())
+            return current;
+        return opponent;
+
     }
 
 

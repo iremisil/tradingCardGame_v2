@@ -32,18 +32,18 @@ public class Player {
         playCommand = new Play(this);
         healthObserver = new HealthObserver(this);
         manaObserver = new ManaObserver(this);
-        initHand();
+        this.initHand();
     }
 
-    public Integer play(int choosenCardIndex) throws NotEnoughManaException {
-        return this.playCommand.execute(choosenCardIndex);
+    public Integer play(int chosenCardIndex) throws NotEnoughManaException {
+        return this.playCommand.execute(chosenCardIndex);
     }
 
     public void draw() throws DeckEmptyException {
 
         // draw card and remove from deck
         Integer card = this.drawCommand.execute();
-        // if hand is full therefore drawn card is not added to hand.
+        // if hand is full, the drawn card is discarded.
         if (this.getHand().size() < 5)
             this.getHand().add(card);
     }

@@ -21,13 +21,10 @@ public class Draw implements Command {
         return getRandomCard();
     }
 
-    private Integer getRandomCard() throws DeckEmptyException {
+    private Integer getRandomCard() {
 
         // pick random card
-        List<Integer> hand = new ArrayList();
-
-        if (hand.isEmpty())
-            throw TradingCardGameException.DECK_IS_EMPTY;
+        List<Integer> hand = this.player.getCardList();
 
         int index = new Random().nextInt(hand.size());
         int damage = hand.get(index);

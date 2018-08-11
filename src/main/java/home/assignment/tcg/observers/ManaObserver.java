@@ -9,9 +9,15 @@ public class ManaObserver extends Observer {
     }
 
     @Override
-    public void update(Integer damage) {
+    public void update(Integer mana) {
         if (this.player.getMana() < 10)
-            this.player.setMana(this.player.getMana() + damage);
+            this.player.setMana(this.player.getMana() + mana);
 
+    }
+
+    public void decreaseMana(Integer damageMana) {
+
+        if (this.player.getMana() > 0)
+            this.player.setMana(this.player.getMana() - damageMana);
     }
 }
